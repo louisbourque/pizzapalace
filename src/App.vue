@@ -1,9 +1,16 @@
 <template>
   <div id="app">
-    <label class="input__label"
-      >Input:
-      <textarea class="input__textarea" v-model="input" />
-    </label>
+    <div class="input__div">
+      <label class="input__label"
+        >Input:
+        <textarea class="input__textarea" v-model="input" />
+      </label>
+      <div v-if="errors.length" class="error">
+        <div v-for="(error, index) in errors" :key="index">
+          {{ error }}
+        </div>
+      </div>
+    </div>
     <Receipt v-if="order.length" :order="order" />
   </div>
 </template>
@@ -62,10 +69,16 @@ export default {
       input: `Large - Pepperoni, Cheese,
 Medium - Pepperoni, Cheese
 Small - Pepperoni, Cheese`,
+      errors: [],
     }
   },
   components: {
     Receipt,
+  },
+  watch: {
+    input: function() {
+      this.errors = []
+    },
   },
   computed: {
     order: function() {
@@ -81,7 +94,13 @@ Small - Pepperoni, Cheese`,
                 ? slice_ingredients_string
                     .split(',')
                     .map(line => line.trim())
-                    .filter(ingredient => toppingType[ingredient])
+                    .filter(ingredient => {
+                      const isValid = toppingType[ingredient]
+                      if (!isValid && ingredient !== '') {
+                        this.errors.push('Unknown topping: ' + ingredient)
+                      }
+                      return isValid
+                    })
                 : []
               return { slice_size, slice_ingredients }
             })
@@ -94,7 +113,13 @@ Small - Pepperoni, Cheese`,
               }
               return order
             }, [])
-            .filter(item => !!sizePrices[item.slice_size])
+            .filter(item => {
+              const isValid = !!sizePrices[item.slice_size]
+              if (!isValid) {
+                this.errors.push('Unknown size: ' + item.slice_size)
+              }
+              return isValid
+            })
             .map(item => {
               let price =
                 item.count * sizePrices[item.slice_size] +
@@ -122,10 +147,13 @@ Small - Pepperoni, Cheese`,
   flex-wrap: wrap;
 }
 
+.input__div {
+  min-width: 400px;
+}
+
 .input__label {
   font-weight: bold;
   font-size: 120%;
-  min-width: 400px;
   padding-right: 2rem;
 }
 
@@ -137,5 +165,8 @@ Small - Pepperoni, Cheese`,
 
 .center {
   text-align: center;
+}
+.error {
+  color: red;
 }
 </style>
