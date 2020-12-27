@@ -5,10 +5,9 @@
     <ul class="receipt__itemlist">
       <li v-for="(item, index) in order" :key="index">
         {{ item.count }} {{ item.slice_size }},
-        {{ getTextNumber(item.slice_ingredients.length) }} Topping Pizza -
-        {{ formatIngredientList(item.slice_ingredients) }}: ${{
-          item.price.toFixed(2)
-        }}
+        {{ getTextNumber(item.slice_ingredients.length) }} Topping Pizza{{
+          formatIngredientList(item.slice_ingredients)
+        }}: ${{ item.price.toFixed(2) }}
       </li>
     </ul>
     Subtotal: ${{ subtotal.toFixed(2) }}<br />
@@ -65,7 +64,7 @@ export default {
     formatIngredientList: function(ingredients) {
       return ingredients.reduce((string, ingredient, index) => {
         if (index === 0) {
-          return ingredient
+          return ' - ' + ingredient
         } else if (index === ingredients.length - 1) {
           return string + ' and ' + ingredient
         } else {
