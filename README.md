@@ -1,5 +1,7 @@
 # pizzapalace
 
+[Demo](https://www.louisbourque.ca/pizzapalace/)
+
 ## Project setup
 ```
 npm install
