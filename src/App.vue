@@ -59,7 +59,9 @@ export default {
   name: 'App',
   data: function() {
     return {
-      input: '',
+      input: `Large - Pepperoni, Cheese,
+Medium - Pepperoni, Cheese
+Small - Pepperoni, Cheese`,
     }
   },
   components: {
@@ -116,17 +118,24 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
-  margin-top: 60px;
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .input__label {
   font-weight: bold;
   font-size: 120%;
+  min-width: 400px;
+  padding-right: 2rem;
 }
 
 .input__textarea {
   display: block;
-  width: 40%;
+  width: 100%;
   height: 6rem;
+}
+
+.center {
+  text-align: center;
 }
 </style>

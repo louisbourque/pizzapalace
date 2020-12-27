@@ -1,7 +1,8 @@
 <template>
   <div class="receipt">
-    <h1>Receipt</h1>
-    <ul>
+    <h1 class="center">Pizza Place #902</h1>
+    <div class="center"><strong>All sales final</strong></div>
+    <ul class="receipt__itemlist">
       <li v-for="(item, index) in order" :key="index">
         {{ item.count }} {{ item.slice_size }},
         {{ getTextNumber(item.slice_ingredients.length) }} Topping Pizza -
@@ -13,6 +14,13 @@
     Subtotal: ${{ subtotal.toFixed(2) }}<br />
     GST: ${{ gst.toFixed(2) }}<br />
     Total: ${{ total.toFixed(2) }}
+
+    <br />
+    <br />
+    GST Reg.# A1231456248
+
+    <br /><br />
+    <div class="center">&lt;&lt;&lt;&lt; customer copy &gt;&gt;&gt;&gt;</div>
   </div>
 </template>
 
@@ -70,4 +78,16 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped></style>
+<style scoped>
+.receipt {
+  font-family: monospace;
+  border: 1px solid black;
+  padding: 0.5rem;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+  margin: 0 auto;
+}
+.receipt__itemlist {
+  list-style-type: none;
+  padding-left: 0;
+}
+</style>
