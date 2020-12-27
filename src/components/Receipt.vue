@@ -4,9 +4,9 @@
     <div class="center"><strong>All sales final</strong></div>
     <ul class="receipt__itemlist">
       <li v-for="(item, index) in order" :key="index">
-        {{ item.count }} {{ item.slice_size }},
-        {{ getTextNumber(item.slice_ingredients.length) }} Topping Pizza{{
-          formatIngredientList(item.slice_ingredients)
+        {{ item.count }} {{ item.sliceSize }},
+        {{ getTextNumber(item.sliceIngredients.length) }} Topping Pizza{{
+          formatIngredientList(item.sliceIngredients)
         }}: ${{ item.price.toFixed(2) }}
       </li>
     </ul>
@@ -51,6 +51,7 @@ export default {
       )
     },
     gst: function() {
+      // Ensure we always round up
       return Math.ceil(this.subtotal * 100 * 0.05) / 100
     },
     total: function() {
@@ -76,7 +77,6 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .receipt {
   font-family: monospace;

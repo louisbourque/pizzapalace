@@ -21,24 +21,24 @@ import Receipt from './components/Receipt.vue'
 const orderContainsItem = function(order, item) {
   return order.find(
     orderItem =>
-      orderItem.slice_size === item.slice_size &&
-      orderItem.slice_ingredients.length === item.slice_ingredients.length &&
-      !orderItem.slice_ingredients.find(
+      orderItem.sliceSize === item.sliceSize &&
+      orderItem.sliceIngredients.length === item.sliceIngredients.length &&
+      !orderItem.sliceIngredients.find(
         order_ingredient =>
-          !item.slice_ingredients.find(
+          !item.sliceIngredients.find(
             ingredient => order_ingredient == ingredient
           )
       )
   )
 }
 
-const sizePrices = {
+const sliceSizePriceMap = {
   Small: 12,
   Medium: 14,
   Large: 16,
 }
 
-const toppingPrice = {
+const toppingTypePriceMap = {
   Basic: {
     Small: 0.5,
     Medium: 0.75,
@@ -51,7 +51,7 @@ const toppingPrice = {
   },
 }
 
-const toppingType = {
+const toppingTypeMap = {
   Cheese: 'Basic',
   Pepperoni: 'Basic',
   Ham: 'Basic',
@@ -82,56 +82,62 @@ Small - Pepperoni, Cheese`,
   },
   computed: {
     order: function() {
+      if (!this.input) {
+        return []
+      }
       return this.input
-        ? this.input
-            .split('\n')
+        .split('\n')
+        .map(line => line.trim())
+        .map(line => {
+          const [sliceSize, sliceIngredientsString] = line
+            .split('-')
             .map(line => line.trim())
-            .map(line => {
-              const [slice_size, slice_ingredients_string] = line
-                .split('-')
+          const sliceIngredients = sliceIngredientsString
+            ? sliceIngredientsString
+                .split(',')
                 .map(line => line.trim())
-              const slice_ingredients = slice_ingredients_string
-                ? slice_ingredients_string
-                    .split(',')
-                    .map(line => line.trim())
-                    .filter(ingredient => {
-                      const isValid = toppingType[ingredient]
-                      if (!isValid && ingredient !== '') {
-                        this.errors.push('Unknown topping: ' + ingredient)
-                      }
-                      return isValid
-                    })
-                : []
-              return { slice_size, slice_ingredients }
-            })
-            .reduce((order, item) => {
-              const existingItem = orderContainsItem(order, item)
-              if (existingItem) {
-                existingItem.count += 1
-              } else {
-                order.push({ count: 1, ...item })
-              }
-              return order
-            }, [])
-            .filter(item => {
-              const isValid = !!sizePrices[item.slice_size]
-              if (!isValid) {
-                this.errors.push('Unknown size: ' + item.slice_size)
-              }
-              return isValid
-            })
-            .map(item => {
-              let price =
-                item.count * sizePrices[item.slice_size] +
-                item.slice_ingredients
-                  .map(
-                    ingredient =>
-                      toppingPrice[toppingType[ingredient]][item.slice_size]
-                  )
-                  .reduce((accumulator, value) => accumulator + value, 0)
-              return { ...item, price }
-            })
-        : []
+                .filter(ingredient => {
+                  // Assumption: on invalid ingredient, warn the user, continue calculation without ingredient
+                  const isValid = toppingTypeMap[ingredient]
+                  if (!isValid && ingredient !== '') {
+                    this.errors.push('Unknown topping: ' + ingredient)
+                  }
+                  return isValid
+                })
+            : []
+          return { sliceSize, sliceIngredients }
+        })
+        .reduce((order, item) => {
+          // Assumption: combine slices if they have the same size and ingredients
+          const existingItem = orderContainsItem(order, item)
+          if (existingItem) {
+            existingItem.count += 1
+          } else {
+            order.push({ count: 1, ...item })
+          }
+          return order
+        }, [])
+        .filter(item => {
+          // Assumption: on invalid size, warn the user, continue calculation without pizza slice
+          const isValid = !!sliceSizePriceMap[item.sliceSize]
+          if (!isValid) {
+            this.errors.push('Unknown size: ' + item.sliceSize)
+          }
+          return isValid
+        })
+        .map(item => {
+          const price =
+            item.count * sliceSizePriceMap[item.sliceSize] +
+            item.sliceIngredients
+              .map(
+                ingredient =>
+                  toppingTypePriceMap[toppingTypeMap[ingredient]][
+                    item.sliceSize
+                  ]
+              )
+              .reduce((accumulator, value) => accumulator + value, 0)
+          return { ...item, price }
+        })
     },
   },
 }
